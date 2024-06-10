@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Reposição</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://img.freepik.com/fotos-gratis/abundancia-de-escolhas-alimentares-saudaveis-no-corredor-do-supermercado-geradas-pela-ia_188544-42447.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 248, 216, 0.8);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgb(226, 107, 107);
+        }
+        h1 {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px;
+            background-color: rgb(104, 29, 29);
+            color: rgb(255, 219, 120);
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgb(226, 107, 107);
+        }
+        .header-img {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            width: 300px;
+        }
+        form {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"]{
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        .verde {
+            background-color: #60ff52; /* Verde */
+        }
+        .amarelo {
+            background-color: #fff242; /* Amarelo */
+        }
+        .vermelho {
+            background-color: #ff4444; /* Vermelho */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Controle de Reposição de Estoque</h1>
+    <img class="header-img" src="https://i.pinimg.com/originals/17/c4/0f/17c40f38e30533e84f11a181afc2810a.jpg" alt="Supermercado">
+
+    <form id="formProduto">
+        <label for="produto">Nome do Produto:</label>
+        <input type="text" id="produto" name="produto" required>
+        
+        <label for="validade">Validade:</label>
+        <input type="date" id="validade" name="validade" required>
+
+        <label for="preco">Preço(R$):</label>
+        <input type="number" step="0.01" id="preco" name="preco">
+        
+        <label for="gramas">(Kg/L):</label>
+        <input type="text" step="0.01" id="gramas" name="gramas">
+        
+        <input type="submit" value="Adicionar Produto">
+    </form>
+
+    <table id="tabelaProdutos">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Validade</th>
+                <th>Preço(R$)</th>
+                <th>(Kg/L)</th>
+                <th>Opções</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Os produtos adicionados serão exibidos aqui -->
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    function calcularDiferencaData(dataValidade) {
+        var dataAtual = new Date();
+        var dataVencimento = new Date(dataValidade);
+        var diferenca = dataVencimento.getTime() - dataAtual.getTime();
+        var dias = Math.ceil(diferenca / (1000 * 3600 * 24));
+        return dias;
+    }
+
+    function atribuirCorLinhaProduto(row, diasRestantes) {
+        if (diasRestantes > 30) {
+            row.classList.add("verde");
+        } else if (diasRestantes > 0) {
+            row.classList.add("amarelo");
+        } else {
+            row.classList.add("vermelho");
+        }
+    }
+
+    document.getElementById("formProduto").addEventListener("submit", function(event) {
+        event.preventDefault(); // Evita o envio do formulário
+
+        var produtoInput = document.getElementById("produto");
+        var validadeInput = document.getElementById("validade");
+        var precoInput = document.getElementById("preco");
+        var gramasInput = document.getElementById("gramas");
+
+        var produto = produtoInput.value;
+        var validade = validadeInput.value;
+        var preco = precoInput.value;
+        var gramas = gramasInput.value;
+
+        var diasRestantes = calcularDiferencaData(validade);
+
+        // Cria uma nova linha na tabela para o novo produto
+        var tableBody = document.querySelector("#tabelaProdutos tbody");
+        var newRow = tableBody.insertRow();
+
+        var cellProduto = newRow.insertCell(0);
+        var cellValidade = newRow.insertCell(1);
+        var cellPreco = newRow.insertCell(2);
+        var cellGramas = newRow.insertCell(3);
+        var cellAcoes = newRow.insertCell(4);
+
+        cellProduto.textContent = produto;
+        cellValidade.textContent = validade;
+        cellPreco.textContent = preco;
+        cellGramas.textContent = gramas;
+
+        atribuirCorLinhaProduto(newRow, diasRestantes);
+
+        // Adiciona botões para remover e alterar a validade
+        var btnRemove = document.createElement("button");
+        btnRemove.textContent = "Remover";
+        btnRemove.classList.add("btn");
+        btnRemove.onclick = function() {
+            tableBody.removeChild(newRow);
+        };
+
+        var btnAlterar = document.createElement("button");
+        btnAlterar.textContent = "Alterar Validade";
+        btnAlterar.classList.add("btn");
+        btnAlterar.onclick = function() {
+            var novaValidade = prompt("Digite a nova validade:", validade);
+            if (novaValidade) {
+                validade = novaValidade;
+                cellValidade.textContent = novaValidade;
+                diasRestantes = calcularDiferencaData(novaValidade);
+                atribuirCorLinhaProduto(newRow, diasRestantes);
+            }
+        };
+
+        cellAcoes.appendChild(btnRemove);
+        cellAcoes.appendChild(btnAlterar);
+
+        // Limpa os campos do formulário após a adição
+        produtoInput.value = "";
+        validadeInput.value = "";
+        precoInput.value = "";
+        gramasInput.value = "";
+    });
+</script>
+
+</body>
+</html>
